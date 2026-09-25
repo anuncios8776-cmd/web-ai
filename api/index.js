@@ -24,10 +24,11 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Falta el parámetro "tema"' });
       }
 
-      const apiKey = process.env.HUGGINGFACE_API_KEY; 
+      // Llave de Groq
+      const apiKey = process.env.GROQ_API_KEY; 
       
       if (!apiKey) {
-        return res.status(500).json({ error: 'Falta configurar la llave HUGGINGFACE_API_KEY en Vercel.' });
+        return res.status(500).json({ error: 'Falta configurar la llave GROQ_API_KEY en las variables de entorno de Vercel.' });
       }
 
       const prompt = `Genera un plan de aprendizaje estructurado en JSON estricto sobre el tema: "${tema}". 
@@ -46,27 +47,27 @@ export default async function handler(req, res) {
         }
       }`;
 
-      // Nueva URL oficial del router de Hugging Face
-      const responseAI = await fetch('https://router.huggingface.co/v1/chat/completions', {
+      // Petición al API oficial de Groq
+      const responseAI = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${apiKey}`
         },
         body: JSON.stringify({
-          model: "meta-llama/Meta-Llama-3-8B-Instruct",
+          model: "llama-3.3-70b-versatile",
           messages: [
             { role: "system", content: "Eres un generador de contenidos educativos expertos. Responde ÚNICAMENTE con un objeto JSON válido, sin texto adicional ni marcas markdown." },
             { role: "user", content: prompt }
           ],
-          max_tokens: 1500,
+          response_format: { type: "json_object" }, // Forzar formato JSON en Groq
           temperature: 0.7
         })
       });
 
       if (!responseAI.ok) {
         const errorData = await responseAI.text();
-        throw new Error(`Error del enrutador: ${errorData}`);
+        throw new Error(`Error de Groq: ${errorData}`);
       }
 
       const dataAI = await responseAI.json();
