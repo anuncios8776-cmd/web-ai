@@ -24,11 +24,10 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Falta el parámetro "tema"' });
       }
 
-      // Token de Hugging Face (puedes crear uno gratis en huggingface.co/settings/tokens)
       const apiKey = process.env.HUGGINGFACE_API_KEY; 
       
       if (!apiKey) {
-        return res.status(500).json({ error: 'Falta configurar la llave HUGGINGFACE_API_KEY en las variables de entorno de Vercel.' });
+        return res.status(500).json({ error: 'Falta configurar la llave HUGGINGFACE_API_KEY en Vercel.' });
       }
 
       const prompt = `Genera un plan de aprendizaje estructurado en JSON estricto sobre el tema: "${tema}". 
@@ -47,17 +46,17 @@ export default async function handler(req, res) {
         }
       }`;
 
-      // Usamos un modelo gratuito y potente de Hugging Face
-      const responseAI = await fetch('https://api-inference.huggingface.co/models/Qwen/Qwen2.5-72B-Instruct/v1/chat/completions', {
+      // Nueva URL oficial del router de Hugging Face
+      const responseAI = await fetch('https://router.huggingface.co/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${apiKey}`
         },
         body: JSON.stringify({
-          model: "Qwen/Qwen2.5-72B-Instruct",
+          model: "meta-llama/Meta-Llama-3-8B-Instruct",
           messages: [
-            { role: "system", content: "Eres un generador de contenidos educativos. Responde ÚNICAMENTE con un objeto JSON válido, sin texto adicional ni marcas markdown." },
+            { role: "system", content: "Eres un generador de contenidos educativos expertos. Responde ÚNICAMENTE con un objeto JSON válido, sin texto adicional ni marcas markdown." },
             { role: "user", content: prompt }
           ],
           max_tokens: 1500,
@@ -67,13 +66,12 @@ export default async function handler(req, res) {
 
       if (!responseAI.ok) {
         const errorData = await responseAI.text();
-        throw new Error(`Error de Hugging Face: ${errorData}`);
+        throw new Error(`Error del enrutador: ${errorData}`);
       }
 
       const dataAI = await responseAI.json();
       let textoRespuesta = dataAI.choices[0].message.content.trim();
       
-      // Limpiar marcas de código si el modelo llega a incluirlas
       textoRespuesta = textoRespuesta.replace(/```json/g, '').replace(/```/g, '').trim();
       
       const datosGenerados = JSON.parse(textoRespuesta);
