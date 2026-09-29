@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-interface MinijuegoSimulacion {
+interface Simulacion {
   tipo: string;
   rol_usuario: string;
   contexto_escenario: string;
@@ -21,7 +21,7 @@ interface TemaData {
   titulo: string;
   resumen_conceptual: string;
   libros_recomendados: Libro[];
-  minijuego: MinijuegoSimulacion;
+  minijuego: Simulacion;
 }
 
 export default function App() {
@@ -81,7 +81,7 @@ export default function App() {
     }
   };
 
-  const verificarDecision = (opcion: string) => {
+  const tomarDecision = (opcion: string) => {
     setOpcionSeleccionada(opcion);
     if (!datosActuales) return;
 
@@ -91,33 +91,33 @@ export default function App() {
 
   return (
     <div style={{ maxWidth: '850px', margin: '0 auto', padding: '20px', fontFamily: 'sans-serif', color: '#333' }}>
-      <h1>🚀 Simulador Técnico & Mentor IA</h1>
-      <p>Introduce cualquier área o tecnología que quieras dominar. Las IA duales generarán una simulación práctica basada en retos reales.</p>
+      <h1>⚙️ Simulador de Decisiones Técnicas</h1>
+      <p>Introduce un tema y enfréntate a una simulación de caso real donde deberás tomar decisiones de ingeniería y análisis.</p>
 
       <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
         <input
           type="text"
           value={temaInput}
           onChange={(e) => setTemaInput(e.target.value)}
-          placeholder="Ej. Auditoría de Redes, Arquitectura Microservicios..."
+          placeholder="Ej. Ciberseguridad, Gestión de Servidores, Redes..."
           style={{ flex: 1, padding: '12px', fontSize: '16px', borderRadius: '6px', border: '1px solid #ccc' }}
           disabled={cargando}
         />
         <button type="submit" disabled={cargando} style={{ padding: '12px 24px', background: '#0070f3', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>
-          {cargando ? 'Generando simulación...' : 'Iniciar Simulación'}
+          {cargando ? 'Generando escenario...' : 'Cargar Simulación'}
         </button>
       </form>
 
       {error && <div style={{ background: '#ffebee', color: '#c62828', padding: '12px', borderRadius: '6px', marginBottom: '20px' }}>{error}</div>}
 
       {datosActuales && (
-        <div style={{ background: '#fdfdfd', border: '1px solid #e0e0e0', padding: '25px', borderRadius: '10px', marginBottom: '30px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
-          <h2 style={{ color: '#111', marginTop: 0 }}>{datosActuales.titulo}</h2>
+        <div style={{ background: '#fff', border: '1px solid #e0e0e0', padding: '25px', borderRadius: '10px', marginBottom: '30px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+          <h2 style={{ marginTop: 0 }}>{datosActuales.titulo}</h2>
           
-          <h3>💡 Resumen Conceptual</h3>
+          <h3>📖 Resumen Conceptual</h3>
           <p style={{ lineHeight: '1.6' }}>{datosActuales.resumen_conceptual}</p>
 
-          <h3>📚 Lecturas Recomendadas</h3>
+          <h3>📚 Lecturas Clave</h3>
           <ul style={{ paddingLeft: '20px' }}>
             {datosActuales.libros_recomendados?.map((libro, index) => (
               <li key={index} style={{ marginBottom: '8px' }}>
@@ -127,22 +127,35 @@ export default function App() {
             ))}
           </ul>
 
-          <div style={{ marginTop: '30px', padding: '20px', background: '#f0f4f8', borderRadius: '8px', border: '1px solid #d0e1fd' }}>
-            <h3 style={{ marginTop: 0, color: '#0056b3' }}>⚙️ Simulación Práctica de Escenario</h3>
-            <p><strong>Tu Rol:</strong> {datosActuales.minijuego.rol_usuario}</p>
-            <p><strong>Contexto:</strong> {datosActuales.minijuego.contexto_escenario}</p>
-            <p style={{ fontWeight: 'bold', color: '#333' }}>Reto: {datosActuales.minijuego.reto}</p>
+          {/* Bloque de Simulación de Decisiones */}
+          <div style={{ marginTop: '30px', padding: '20px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #cbd5e1' }}>
+            <h3 style={{ marginTop: 0, color: '#1e293b' }}>🕹️ Consola de Simulación de Incidente</h3>
+            <p><strong>Tu Rol Asignado:</strong> {datosActuales.minijuego.rol_usuario}</p>
+            <p><strong>Escenario:</strong> {datosActuales.minijuego.contexto_escenario}</p>
+            <p style={{ fontWeight: 'bold', color: '#0f172a', background: '#e2e8f0', padding: '10px', borderRadius: '4px' }}>
+              🎯 Reto: {datosActuales.minijuego.reto}
+            </p>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '15px' }}>
+            <p style={{ marginBottom: '8px', fontWeight: '600' }}>Selecciona tu curso de acción:</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {datosActuales.minijuego.opciones?.map((opcion, idx) => {
-                let estiloBoton = { padding: '12px 15px', textAlign: 'left' as const, background: '#fff', border: '1px solid #b0c4de', borderRadius: '6px', cursor: 'pointer', fontSize: '15px' };
+                let estiloBoton: React.CSSProperties = {
+                  padding: '12px 15px',
+                  textAlign: 'left',
+                  background: '#fff',
+                  border: '1px solid #94a3b8',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '15px'
+                };
+
                 if (opcionSeleccionada === opcion) {
-                  estiloBoton.background = opcion === datosActuales.minijuego.respuesta_correcta ? '#d4edda' : '#f8d7da';
-                  estiloBoton.border = opcion === datosActuales.minijuego.respuesta_correcta ? '1px solid #28a745' : '1px solid #dc3545';
+                  estiloBoton.background = opcion === datosActuales.minijuego.respuesta_correcta ? '#dcfce7' : '#fee2e2';
+                  estiloBoton.border = opcion === datosActuales.minijuego.respuesta_correcta ? '1px solid #16a34a' : '1px solid #dc2626';
                 }
 
                 return (
-                  <button key={idx} onClick={() => verificarDecision(opcion)} style={estiloBoton}>
+                  <button key={idx} onClick={() => tomarDecision(opcion)} style={estiloBoton}>
                     {opcion}
                   </button>
                 );
@@ -150,12 +163,12 @@ export default function App() {
             </div>
 
             {resultadoSimulacion !== null && (
-              <div style={{ marginTop: '20px', padding: '15px', background: resultadoSimulacion ? '#d4edda' : '#f8d7da', borderRadius: '6px', border: resultadoSimulacion ? '1px solid #c3e6cb' : '1px solid #f5c6cb' }}>
-                <h4 style={{ margin: '0 0 5px 0', color: resultadoSimulacion ? '#155724' : '#721c24' }}>
-                  {resultadoSimulacion ? '✅ ¡Decisión Exitosa!' : '❌ ¡Error en la Decisión!'}
+              <div style={{ marginTop: '20px', padding: '15px', background: resultadoSimulacion ? '#f0fdf4' : '#fef2f2', borderRadius: '6px', border: resultadoSimulacion ? '1px solid #bbf7d0' : '1px solid #fecaca' }}>
+                <h4 style={{ margin: '0 0 5px 0', color: resultadoSimulacion ? '#166534' : '#991b1b' }}>
+                  {resultadoSimulacion ? '⚡ ¡Acción Exitosa!' : '⚠️ ¡Fallo en la Estrategia!'}
                 </h4>
-                <p style={{ margin: '5px 0' }}><strong>Consecuencia:</strong> {datosActuales.minijuego.consecuencia_exito}</p>
-                <p style={{ margin: '5px 0 0 0' }}><strong>Fundamento Teórico:</strong> <small>{datosActuales.minijuego.explicacion_teorica}</small></p>
+                <p style={{ margin: '5px 0' }}><strong>Impacto del resultado:</strong> {datosActuales.minijuego.consecuencia_exito}</p>
+                <p style={{ margin: '8px 0 0 0' }}><strong>Fundamento Técnico:</strong> <small>{datosActuales.minijuego.explicacion_teorica}</small></p>
               </div>
             )}
           </div>

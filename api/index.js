@@ -30,31 +30,31 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'Falta configurar la llave GROQ_API_KEY en las variables de entorno de Vercel.' });
       }
 
-      // Prompt mejorado para exigir una simulación teórica y práctica avanzada
-      const promptInicial = `Genera un plan de aprendizaje estructurado y avanzado sobre el tema: "${tema}". 
-      El minijuego debe ser una SIMULACIÓN TÉCNICA/PRÁCTICA inmersiva (no una simple pregunta aislada).
-      Debe tener este formato exacto de objeto JSON (sin markdown extra ni bloques de código, solo el JSON puro):
+      // Prompt enfocado 100% en simulación y toma de decisiones (Cero preguntas)
+      const promptInicial = `Genera un plan de aprendizaje sobre el tema: "${tema}". 
+      ATENCIÓN: El minijuego NO debe ser una pregunta ni un cuestionario. Debe ser estrictamente una SIMULACIÓN PRÁCTICA de un problema real del tema.
+      Devuelve ÚNICAMENTE un objeto JSON válido con esta estructura exacta (sin markdown ni texto extra):
       {
         "titulo": "Título del tema",
         "resumen_conceptual": "Resumen claro y profundo...",
         "libros_recomendados": [{"titulo": "...", "autor": "...", "por_que_leerlo": "..."}],
         "minijuego": {
-          "tipo": "simulacion_tecnica",
-          "rol_usuario": "Ej: Eres un ingeniero de sistemas / analista...",
-          "contexto_escenario": "Descripción detallada de la situación o problema técnico a resolver...",
-          "reto": "¿Qué acción técnica o decisión debes tomar para resolver el caso?",
+          "tipo": "simulacion_practica",
+          "rol_usuario": "Define claramente el rol profesional que asume el usuario (Ej: Ingeniero DevOps, Arquitecto de Software, Auditor de Seguridad...)",
+          "contexto_escenario": "Descripción detallada de la situación crítica, incidente o reto técnico al que se enfrenta el usuario en este momento.",
+          "reto": "La instrucción exacta de la decisión táctica que debe tomar para resolver el dilema.",
           "opciones": [
-            "Opción A detallada...",
-            "Opción B detallada...",
-            "Opción C detallada..."
+            "Acción técnica 1 a tomar...",
+            "Acción técnica 2 a tomar...",
+            "Acción técnica 3 a tomar..."
           ],
-          "respuesta_correcta": "Copia exacta del texto de la opción correcta",
-          "consecuencia_exito": "Qué sucede a nivel técnico al tomar la decisión correcta...",
-          "explicacion_teorica": "Fundamento teórico detallado del por qué esta es la solución correcta..."
+          "respuesta_correcta": "Copia exacta del texto de la opción que resuelve correctamente el problema técnico",
+          "consecuencia_exito": "Explicación detallada de qué ocurre en el sistema/escenario al aplicar esta decisión correcta.",
+          "explicacion_teorica": "Fundamento teórico y técnico de por qué esta era la estrategia adecuada."
         }
       }`;
 
-      // --- PASO 1: IA 1 (El Creador - gpt-oss-120b) diseña la simulación ---
+      // --- PASO 1: IA 1 (El Creador - gpt-oss-120b) ---
       const responseCreador = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -64,7 +64,7 @@ export default async function handler(req, res) {
         body: JSON.stringify({
           model: "openai/gpt-oss-120b",
           messages: [
-            { role: "system", content: "Eres un experto diseñador instruccional y simuladores técnicos. Responde ÚNICAMENTE en JSON válido." },
+            { role: "system", content: "Eres un experto diseñador de simulaciones profesionales. Cero preguntas de opción múltiple; solo simulaciones de casos reales. Responde ÚNICAMENTE en JSON válido." },
             { role: "user", content: promptInicial }
           ],
           response_format: { type: "json_object" },
@@ -80,8 +80,8 @@ export default async function handler(req, res) {
       const dataCreador = await responseCreador.json();
       const contenidoCreador = dataCreador.choices[0].message.content.trim();
 
-      // --- PASO 2: IA 2 (El Validador - qwen/qwen3.8-27b) verifica la coherencia de la simulación ---
-      const promptValidacion = `Revisa el siguiente JSON educativo y de simulación sobre "${tema}". Asegúrate de que el escenario sea realista, que la respuesta correcta sea técnicamente impecable y que coincida de forma exacta con una de las opciones del array. Devuelve el JSON final limpio y estructurado:
+      // --- PASO 2: IA 2 (El Validador - qwen/qwen3.8-27b) ---
+      const promptValidacion = `Revisa esta simulación sobre "${tema}". Verifica que NO sea una pregunta, sino un caso de simulación con opciones de decisión técnica, y que la respuesta correcta coincida exactamente con una de las opciones. Devuelve el JSON puro corregido:
       ${contenidoCreador}`;
 
       const responseValidador = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -93,7 +93,7 @@ export default async function handler(req, res) {
         body: JSON.stringify({
           model: "qwen/qwen3.8-27b",
           messages: [
-            { role: "system", content: "Eres un validador estricto de simulaciones técnicas. Devuelve estrictamente el objeto JSON corregido y validado, sin texto adicional." },
+            { role: "system", content: "Eres un validador estricto. Asegúrate de que el formato sea una simulación basada en decisiones y devuelve solo el JSON." },
             { role: "user", content: promptValidacion }
           ],
           response_format: { type: "json_object" },
@@ -103,7 +103,6 @@ export default async function handler(req, res) {
 
       const dataFinal = responseValidador.ok ? await responseValidador.json() : dataCreador;
       let textoRespuesta = dataFinal.choices[0].message.content.trim();
-      
       textoRespuesta = textoRespuesta.replace(/```json/g, '').replace(/```/g, '').trim();
       
       const datosGenerados = JSON.parse(textoRespuesta);
