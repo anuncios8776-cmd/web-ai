@@ -93,15 +93,32 @@ export default function App() {
     <div style={{ minHeight: '100vh', background: '#0a0510', color: '#e2e8f0', padding: '30px 20px', fontFamily: 'monospace' }}>
       <div style={{ maxWidth: '900px', margin: '0 auto' }}>
         
-        {/* Cabecera */}
-        <header style={{ textAlign: 'center', marginBottom: '40px', borderBottom: '1px solid #2e1065', paddingBottom: '20px' }}>
-          <h1 style={{ color: '#c084fc', fontSize: '2.5rem', margin: '0 0 10px 0', textShadow: '0 0 15px rgba(192, 132, 252, 0.4)' }}>
-            ⚡ NEXUS // SIMULADOR TÉCNICO
+        {/* Cabecera con Sombreado Verde Neón */}
+        <header style={{ textAlign: 'center', marginBottom: '30px', borderBottom: '1px solid #2e1065', paddingBottom: '20px' }}>
+          <h1 style={{ 
+            color: '#4ade80', 
+            fontSize: '2.5rem', 
+            margin: '0 0 10px 0', 
+            textShadow: '0 0 10px #4ade80, 0 0 25px rgba(74, 222, 128, 0.6), 0 0 40px rgba(74, 222, 128, 0.3)' 
+          }}>
+            ⚡ CYBERSIM // SIMULADOR TÉCNICO
           </h1>
-          <p style={{ color: '#94a3b8', fontSize: '1rem' }}>
+          <p style={{ color: '#94a3b8', fontSize: '1rem', margin: '5px 0' }}>
             Plataforma de entrenamiento de decisiones críticas impulsada por IA Dual.
           </p>
+          <small style={{ color: '#c084fc' }}>Desarrollado por: <strong>damoclest</strong></small>
         </header>
+
+        {/* Sección de Biografía / Acerca de la página */}
+        <div style={{ background: '#12071f', border: '1px solid #7e22ce', padding: '20px', borderRadius: '10px', marginBottom: '30px', boxShadow: '0 0 15px rgba(126, 34, 206, 0.15)' }}>
+          <h3 style={{ color: '#4ade80', marginTop: 0, textShadow: '0 0 8px rgba(74, 222, 128, 0.3)' }}>ℹ️ ¿Para qué sirve CyberSim?</h3>
+          <p style={{ color: '#cbd5e1', lineHeight: '1.6', margin: '0 0 10px 0', fontSize: '14px' }}>
+            <strong>CyberSim</strong> es un entorno interactivo diseñado para ingenieros, desarrolladores y entusiastas de la tecnología que buscan dominar conceptos complejos mediante la práctica simulada. En lugar de memorizar teoría pasiva, aquí asumes roles profesionales reales (como analista de sistemas, auditor de ciberseguridad o arquitecto de software) y resuelves dilemas técnicos mediante toma de decisiones estratégicas.
+          </p>
+          <p style={{ color: '#94a3b8', margin: 0, fontSize: '13px' }}>
+            Cada simulación es generada dinámicamente y validada por sistemas de Inteligencia Artificial avanzados para garantizar rigor técnico y aprendizaje profundo.
+          </p>
+        </div>
 
         {/* Buscador */}
         <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '12px', marginBottom: '35px' }}>
@@ -168,7 +185,7 @@ export default function App() {
               ))}
             </ul>
 
-            {/* Consola del Minijuego / Simulación */}
+            {/* Consola de la Simulación */}
             <div style={{ marginTop: '35px', padding: '25px', background: '#090314', borderRadius: '10px', border: '1px solid #4c1d95' }}>
               <h3 style={{ marginTop: 0, color: '#4ade80', textShadow: '0 0 10px rgba(74, 222, 128, 0.3)' }}>
                 💻 Consola de Simulación de Incidente
