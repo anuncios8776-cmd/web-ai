@@ -1,14 +1,30 @@
 import React, { useState, useEffect } from 'react';
 
-interface Simulacion {
+interface Etapa {
+  id: number;
+  titulo: string;
+  contexto: string;
+  objetivo: string;
+  acciones_sugeridas: Array<{
+    id: string;
+    texto: string;
+    tipo: string;
+    consecuencia_si_se_ejecuta: string;
+    concepto_ensenado: string;
+  }>;
+  respuesta_a_accion: {
+    exito: string;
+    error: string;
+    explicacion: string;
+  };
+}
+
+interface SimulacionCompleta {
   tipo: string;
   rol_usuario: string;
-  contexto_escenario: string;
-  reto: string;
-  opciones: string[];
-  respuesta_correcta: string;
-  consecuencia_exito: string;
-  explicacion_teorica: string;
+  introduccion: string;
+  objetivo_final: string;
+  etapas: Etapa[];
 }
 
 interface Libro {
@@ -21,7 +37,7 @@ interface TemaData {
   titulo: string;
   resumen_conceptual: string;
   libros_recomendados: Libro[];
-  minijuego: Simulacion;
+  minijuego: SimulacionCompleta;
 }
 
 export default function App() {
@@ -29,8 +45,9 @@ export default function App() {
   const [cargando, setCargando] = useState(false);
   const [datosActuales, setDatosActuales] = useState<TemaData | null>(null);
   const [historial, setHistorial] = useState<TemaData[]>([]);
-  const [opcionSeleccionada, setOpcionSeleccionada] = useState<string | null>(null);
-  const [resultadoSimulacion, setResultadoSimulacion] = useState<boolean | null>(null);
+  const [etapaActualIndex, setEtapaActualIndex] = useState(0);
+  const [accionSeleccionada, setAccionSeleccionada] = useState<string | null>(null);
+  const [resultadoAccion, setResultadoAccion] = useState<boolean | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -48,8 +65,9 @@ export default function App() {
 
     setCargando(true);
     setError(null);
-    setOpcionSeleccionada(null);
-    setResultadoSimulacion(null);
+    setEtapaActualIndex(0);
+    setAccionSeleccionada(null);
+    setResultadoAccion(null);
 
     try {
       const response = await fetch('/api/index', {
@@ -81,52 +99,63 @@ export default function App() {
     }
   };
 
-  const tomarDecision = (opcion: string) => {
-    setOpcionSeleccionada(opcion);
-    if (!datosActuales) return;
-
-    const esCorrecta = opcion.trim().toLowerCase() === datosActuales.minijuego.respuesta_correcta.trim().toLowerCase();
-    setResultadoSimulacion(esCorrecta);
+  const ejecutarAccion = (textoAccion: string, idx: number) => {
+    setAccionSeleccionada(textoAccion);
+    // Evaluamos de forma simulada si es la primera opción óptima o requiere aprendizaje
+    const esExito = idx === 0; 
+    setResultadoAccion(esExito);
   };
+
+  const siguienteEtapa = () => {
+    if (!datosActuales) return;
+    if (etapaActualIndex < datosActuales.minijuego.etapas.length - 1) {
+      setEtapaActualIndex(prev => prev + 1);
+      setAccionSeleccionada(null);
+      setResultadoAccion(null);
+    }
+  };
+
+  const etapaActiva = datosActuales?.minijuego.etapas[etapaActualIndex];
 
   return (
     <div style={{ minHeight: '100vh', background: '#0a0510', color: '#e2e8f0', padding: '30px 20px', fontFamily: 'monospace' }}>
       <div style={{ maxWidth: '900px', margin: '0 auto' }}>
         
-        {/* Cabecera con Sombreado Verde Neón */}
+        {/* Cabecera con Título más Grande y Sombreado Neón Morado */}
         <header style={{ textAlign: 'center', marginBottom: '30px', borderBottom: '1px solid #2e1065', paddingBottom: '20px' }}>
           <h1 style={{ 
-            color: '#4ade80', 
-            fontSize: '2.5rem', 
+            color: '#e879f9', 
+            fontSize: '3.2rem', 
             margin: '0 0 10px 0', 
-            textShadow: '0 0 10px #4ade80, 0 0 25px rgba(74, 222, 128, 0.6), 0 0 40px rgba(74, 222, 128, 0.3)' 
+            textShadow: '0 0 15px #a855f7, 0 0 35px rgba(168, 85, 247, 0.7), 0 0 60px rgba(147, 51, 234, 0.5)',
+            letterSpacing: '2px'
           }}>
-            ⚡ CYBERSIM // SIMULADOR TÉCNICO
+            CYBERSIM
           </h1>
-          <p style={{ color: '#94a3b8', fontSize: '1rem', margin: '5px 0' }}>
-            Plataforma de entrenamiento de decisiones críticas impulsada por IA Dual.
+          <p style={{ color: '#94a3b8', fontSize: '1.1rem', margin: '5px 0' }}>
+            Plataforma interactiva de entrenamiento práctico mediante escenarios y roles reales.
           </p>
-          <small style={{ color: '#c084fc' }}>Desarrollado por: <strong>damoclest</strong></small>
+          <small style={{ color: '#c084fc', fontSize: '0.9rem' }}>Creado por: <strong>damoclest</strong></small>
         </header>
 
-        {/* Sección de Biografía / Acerca de la página */}
-        <div style={{ background: '#12071f', border: '1px solid #7e22ce', padding: '20px', borderRadius: '10px', marginBottom: '30px', boxShadow: '0 0 15px rgba(126, 34, 206, 0.15)' }}>
-          <h3 style={{ color: '#4ade80', marginTop: 0, textShadow: '0 0 8px rgba(74, 222, 128, 0.3)' }}>ℹ️ ¿Para qué sirve CyberSim?</h3>
-          <p style={{ color: '#cbd5e1', lineHeight: '1.6', margin: '0 0 10px 0', fontSize: '14px' }}>
-            <strong>CyberSim</strong> es un entorno interactivo diseñado para ingenieros, desarrolladores y entusiastas de la tecnología que buscan dominar conceptos complejos mediante la práctica simulada. En lugar de memorizar teoría pasiva, aquí asumes roles profesionales reales (como analista de sistemas, auditor de ciberseguridad o arquitecto de software) y resuelves dilemas técnicos mediante toma de decisiones estratégicas.
+        {/* Biografía / Acerca de la página */}
+        <div style={{ background: '#12071f', border: '1px solid #7e22ce', padding: '20px', borderRadius: '10px', marginBottom: '30px', boxShadow: '0 0 20px rgba(126, 34, 206, 0.2)' }}>
+          <h3 style={{ color: '#e879f9', marginTop: 0, textShadow: '0 0 8px rgba(232, 121, 249, 0.4)' }}>ℹ️ ¿Para qué sirve CyberSim?</h3>
+          <p style={{ color: '#cbd5e1', lineHeight: '1.7', margin: '0 0 10px 0', fontSize: '14px' }}>
+            <strong>CyberSim</strong> transforma la educación técnica en una experiencia inmersiva basada en videojuegos de simulación. En lugar de responder exámenes estáticos, asumes roles profesionales (como ingeniero, analista o desarrollador) y tomas decisiones en múltiples etapas guiadas. Cada acción modifica el estado del entorno y enseña conceptos complejos a través de consecuencias reales.
           </p>
           <p style={{ color: '#94a3b8', margin: 0, fontSize: '13px' }}>
-            Cada simulación es generada dinámicamente y validada por sistemas de Inteligencia Artificial avanzados para garantizar rigor técnico y aprendizaje profundo.
+            Diseñado e implementado con arquitecturas de Inteligencia Artificial dual para garantizar rigor técnico y aprendizaje activo.
           </p>
         </div>
 
-        {/* Buscador */}
+        {/* Buscador de Tema */}
         <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '12px', marginBottom: '35px' }}>
           <input
             type="text"
             value={temaInput}
             onChange={(e) => setTemaInput(e.target.value)}
-            placeholder="Introduce tema de estudio o incidente (Ej. Ciberseguridad, Redes, React...)"
+            placeholder="Introduce un tema o reto (Ej. Ciberseguridad, React, Conteo de cartas...)"
             style={{
               flex: 1,
               padding: '14px 18px',
@@ -136,7 +165,7 @@ export default function App() {
               borderRadius: '8px',
               color: '#f8fafc',
               outline: 'none',
-              boxShadow: '0 0 10px rgba(126, 34, 206, 0.2)'
+              boxShadow: '0 0 12px rgba(126, 34, 206, 0.25)'
             }}
             disabled={cargando}
           />
@@ -152,11 +181,11 @@ export default function App() {
               cursor: 'pointer',
               fontWeight: 'bold',
               fontSize: '15px',
-              boxShadow: '0 0 15px rgba(147, 51, 234, 0.5)',
+              boxShadow: '0 0 18px rgba(147, 51, 234, 0.6)',
               transition: 'all 0.2s ease'
             }}
           >
-            {cargando ? 'Generando...' : 'Iniciar Simulación'}
+            {cargando ? 'Generando simulación...' : 'Iniciar Experiencia'}
           </button>
         </form>
 
@@ -166,89 +195,111 @@ export default function App() {
           </div>
         )}
 
-        {/* Contenido principal generado */}
+        {/* Contenido principal de la Simulación */}
         {datosActuales && (
-          <div style={{ background: '#130822', border: '1px solid #7e22ce', padding: '30px', borderRadius: '12px', marginBottom: '40px', boxShadow: '0 0 25px rgba(126, 34, 206, 0.15)' }}>
+          <div style={{ background: '#130822', border: '1px solid #7e22ce', padding: '30px', borderRadius: '12px', marginBottom: '40px', boxShadow: '0 0 30px rgba(126, 34, 206, 0.2)' }}>
             
-            <h2 style={{ color: '#e879f9', marginTop: 0, fontSize: '1.8rem' }}>{datosActuales.titulo}</h2>
+            <h2 style={{ color: '#f0abfc', marginTop: 0, fontSize: '2rem' }}>{datosActuales.titulo}</h2>
             
-            <h3 style={{ color: '#a855f7', borderBottom: '1px solid #2e1065', paddingBottom: '5px' }}>📖 Resumen Conceptual</h3>
+            <h3 style={{ color: '#c084fc', borderBottom: '1px solid #2e1065', paddingBottom: '5px' }}>📖 Resumen Conceptual</h3>
             <p style={{ lineHeight: '1.7', color: '#cbd5e1' }}>{datosActuales.resumen_conceptual}</p>
 
-            <h3 style={{ color: '#a855f7', borderBottom: '1px solid #2e1065', paddingBottom: '5px', marginTop: '25px' }}>📚 Lecturas Clave</h3>
+            <h3 style={{ color: '#c084fc', borderBottom: '1px solid #2e1065', paddingBottom: '5px', marginTop: '25px' }}>📚 Lecturas Clave</h3>
             <ul style={{ paddingLeft: '20px', color: '#cbd5e1' }}>
               {datosActuales.libros_recomendados?.map((libro, index) => (
                 <li key={index} style={{ marginBottom: '10px' }}>
-                  <strong style={{ color: '#f472b6' }}>{libro.titulo}</strong> — <em style={{ color: '#94a3b8' }}>{libro.autor}</em> <br />
+                  <strong style={{ color: '#e879f9' }}>{libro.titulo}</strong> — <em style={{ color: '#94a3b8' }}>{libro.autor}</em> <br />
                   <small style={{ color: '#64748b' }}>{libro.por_que_leerlo}</small>
                 </li>
               ))}
             </ul>
 
-            {/* Consola de la Simulación */}
-            <div style={{ marginTop: '35px', padding: '25px', background: '#090314', borderRadius: '10px', border: '1px solid #4c1d95' }}>
-              <h3 style={{ marginTop: 0, color: '#4ade80', textShadow: '0 0 10px rgba(74, 222, 128, 0.3)' }}>
-                💻 Consola de Simulación de Incidente
-              </h3>
-              
-              <div style={{ marginBottom: '15px', background: '#170b2c', padding: '12px', borderRadius: '6px', borderLeft: '4px solid #a855f7' }}>
-                <p style={{ margin: '0 0 5px 0' }}><strong style={{ color: '#c084fc' }}>Rol Asignado:</strong> {datosActuales.minijuego.rol_usuario}</p>
-                <p style={{ margin: 0 }}><strong style={{ color: '#c084fc' }}>Escenario:</strong> {datosActuales.minijuego.contexto_escenario}</p>
-              </div>
-
-              <p style={{ fontWeight: 'bold', color: '#4ade80', background: '#064e3b', padding: '12px', borderRadius: '6px', border: '1px solid #047857' }}>
-                🎯 RETO TÉCNICO: {datosActuales.minijuego.reto}
-              </p>
-
-              <p style={{ marginBottom: '10px', color: '#cbd5e1' }}>Selecciona tu línea de acción:</p>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {datosActuales.minijuego.opciones?.map((opcion, idx) => {
-                  let estiloBoton: React.CSSProperties = {
-                    padding: '14px 18px',
-                    textAlign: 'left',
-                    background: '#12071f',
-                    border: '1px solid #7e22ce',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    color: '#f8fafc',
-                    fontFamily: 'monospace',
-                    transition: 'all 0.2s'
-                  };
-
-                  if (opcionSeleccionada === opcion) {
-                    const esAcierto = opcion === datosActuales.minijuego.respuesta_correcta;
-                    estiloBoton.background = esAcierto ? '#064e3b' : '#7f1d1d';
-                    estiloBoton.border = esAcierto ? '1px solid #4ade80' : '1px solid #f87171';
-                    estiloBoton.color = '#fff';
-                  }
-
-                  return (
-                    <button key={idx} onClick={() => tomarDecision(opcion)} style={estiloBoton}>
-                      {opcion}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {resultadoSimulacion !== null && (
-                <div style={{
-                  marginTop: '20px',
-                  padding: '20px',
-                  background: resultadoSimulacion ? '#022c22' : '#450a0a',
-                  borderRadius: '8px',
-                  border: resultadoSimulacion ? '1px solid #10b981' : '1px solid #ef4444',
-                  boxShadow: resultadoSimulacion ? '0 0 15px rgba(16, 185, 129, 0.2)' : '0 0 15px rgba(239, 68, 68, 0.2)'
-                }}>
-                  <h4 style={{ margin: '0 0 8px 0', color: resultadoSimulacion ? '#4ade80' : '#f87171', fontSize: '1.1rem' }}>
-                    {resultadoSimulacion ? '⚡ [ACCIÓN EXITOSA: SISTEMA ESTABILIZADO]' : '💥 [FALLO CRÍTICO: BRECHA DETECTADA]'}
-                  </h4>
-                  <p style={{ margin: '5px 0', color: '#e2e8f0' }}><strong>Impacto:</strong> {datosActuales.minijuego.consecuencia_exito}</p>
-                  <p style={{ margin: '10px 0 0 0', color: '#94a3b8' }}><strong>Fundamento Técnico:</strong> {datosActuales.minijuego.explicacion_teorica}</p>
+            {/* Consola Interactiva por Etapas */}
+            {etapaActiva && (
+              <div style={{ marginTop: '35px', padding: '25px', background: '#090314', borderRadius: '10px', border: '1px solid #581c87', boxShadow: 'inset 0 0 15px rgba(88, 28, 135, 0.3)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                  <h3 style={{ margin: 0, color: '#e879f9', textShadow: '0 0 10px rgba(232, 121, 249, 0.3)' }}>
+                    🕹️ Etapa {etapaActualIndex + 1} de {datosActuales.minijuego.etapas.length}: {etapaActiva.titulo}
+                  </h3>
+                  <span style={{ background: '#2e1065', color: '#d8b4fe', padding: '4px 10px', borderRadius: '4px', fontSize: '12px' }}>
+                    Rol: {datosActuales.minijuego.rol_usuario}
+                  </span>
                 </div>
-              )}
-            </div>
+                
+                <div style={{ marginBottom: '15px', background: '#170b2c', padding: '15px', borderRadius: '6px', borderLeft: '4px solid #a855f7' }}>
+                  <p style={{ margin: '0 0 8px 0', color: '#f8fafc' }}><strong>Contexto:</strong> {etapaActiva.contexto}</p>
+                  <p style={{ margin: 0, color: '#d8b4fe' }}><strong>Objetivo de etapa:</strong> {etapaActiva.objetivo}</p>
+                </div>
+
+                <p style={{ marginBottom: '10px', color: '#cbd5e1', fontWeight: 'bold' }}>Elige tu acción táctica:</p>
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {etapaActiva.acciones_sugeridas?.map((accion, idx) => {
+                    let estiloBoton: React.CSSProperties = {
+                      padding: '14px 18px',
+                      textAlign: 'left',
+                      background: '#12071f',
+                      border: '1px solid #7e22ce',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      color: '#f8fafc',
+                      fontFamily: 'monospace',
+                      transition: 'all 0.2s'
+                    };
+
+                    if (accionSeleccionada === accion.texto) {
+                      estiloBoton.background = resultadoAccion ? '#022c22' : '#450a0a';
+                      estiloBoton.border = resultadoAccion ? '1px solid #10b981' : '1px solid #ef4444';
+                    }
+
+                    return (
+                      <button key={accion.id || idx} onClick={() => ejecutarAccion(accion.texto, idx)} style={estiloBoton}>
+                        {accion.texto}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {resultadoAccion !== null && (
+                  <div style={{
+                    marginTop: '20px',
+                    padding: '20px',
+                    background: '#12071f',
+                    borderRadius: '8px',
+                    border: '1px solid #a855f7',
+                    boxShadow: '0 0 15px rgba(168, 85, 247, 0.15)'
+                  }}>
+                    <h4 style={{ margin: '0 0 8px 0', color: '#e879f9', fontSize: '1.1rem' }}>
+                      ⚡ Consecuencia de la Acción:
+                    </h4>
+                    <p style={{ margin: '5px 0', color: '#e2e8f0' }}>{etapaActiva.respuesta_a_accion.explicacion}</p>
+                    
+                    {etapaActualIndex < datosActuales.minijuego.etapas.length - 1 ? (
+                      <button
+                        onClick={siguienteEtapa}
+                        style={{
+                          marginTop: '15px',
+                          padding: '10px 20px',
+                          background: '#9333ea',
+                          color: '#fff',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          fontWeight: 'bold'
+                        }}
+                      >
+                        Avanzar a la Siguiente Etapa ➔
+                      </button>
+                    ) : (
+                      <p style={{ marginTop: '15px', color: '#4ade80', fontWeight: 'bold' }}>
+                        🎉 ¡Has completado todas las etapas de esta simulación con éxito!
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
 
           </div>
         )}
@@ -259,7 +310,7 @@ export default function App() {
             <h3 style={{ color: '#c084fc', marginTop: 0 }}>📂 Historial de Simulaciones</h3>
             <ul style={{ paddingLeft: '20px', margin: 0 }}>
               {historial.map((item, idx) => (
-                <li key={idx} style={{ cursor: 'pointer', color: '#38bdf8', marginBottom: '8px' }} onClick={() => setDatosActuales(item)}>
+                <li key={idx} style={{ cursor: 'pointer', color: '#e879f9', marginBottom: '8px' }} onClick={() => { setDatosActuales(item); setEtapaActualIndex(0); setAccionSeleccionada(null); setResultadoAccion(null); }}>
                   {item.titulo}
                 </li>
               ))}
