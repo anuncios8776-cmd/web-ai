@@ -90,103 +90,167 @@ export default function App() {
   };
 
   return (
-    <div style={{ maxWidth: '850px', margin: '0 auto', padding: '20px', fontFamily: 'sans-serif', color: '#333' }}>
-      <h1>⚙️ Simulador de Decisiones Técnicas</h1>
-      <p>Introduce un tema y enfréntate a una simulación de caso real donde deberás tomar decisiones de ingeniería y análisis.</p>
+    <div style={{ minHeight: '100vh', background: '#0a0510', color: '#e2e8f0', padding: '30px 20px', fontFamily: 'monospace' }}>
+      <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+        
+        {/* Cabecera */}
+        <header style={{ textAlign: 'center', marginBottom: '40px', borderBottom: '1px solid #2e1065', paddingBottom: '20px' }}>
+          <h1 style={{ color: '#c084fc', fontSize: '2.5rem', margin: '0 0 10px 0', textShadow: '0 0 15px rgba(192, 132, 252, 0.4)' }}>
+            ⚡ NEXUS // SIMULADOR TÉCNICO
+          </h1>
+          <p style={{ color: '#94a3b8', fontSize: '1rem' }}>
+            Plataforma de entrenamiento de decisiones críticas impulsada por IA Dual.
+          </p>
+        </header>
 
-      <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
-        <input
-          type="text"
-          value={temaInput}
-          onChange={(e) => setTemaInput(e.target.value)}
-          placeholder="Ej. Ciberseguridad, Gestión de Servidores, Redes..."
-          style={{ flex: 1, padding: '12px', fontSize: '16px', borderRadius: '6px', border: '1px solid #ccc' }}
-          disabled={cargando}
-        />
-        <button type="submit" disabled={cargando} style={{ padding: '12px 24px', background: '#0070f3', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>
-          {cargando ? 'Generando escenario...' : 'Cargar Simulación'}
-        </button>
-      </form>
+        {/* Buscador */}
+        <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '12px', marginBottom: '35px' }}>
+          <input
+            type="text"
+            value={temaInput}
+            onChange={(e) => setTemaInput(e.target.value)}
+            placeholder="Introduce tema de estudio o incidente (Ej. Ciberseguridad, Redes, React...)"
+            style={{
+              flex: 1,
+              padding: '14px 18px',
+              fontSize: '15px',
+              background: '#12071f',
+              border: '1px solid #7e22ce',
+              borderRadius: '8px',
+              color: '#f8fafc',
+              outline: 'none',
+              boxShadow: '0 0 10px rgba(126, 34, 206, 0.2)'
+            }}
+            disabled={cargando}
+          />
+          <button
+            type="submit"
+            disabled={cargando}
+            style={{
+              padding: '14px 28px',
+              background: '#9333ea',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontWeight: 'bold',
+              fontSize: '15px',
+              boxShadow: '0 0 15px rgba(147, 51, 234, 0.5)',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            {cargando ? 'Generando...' : 'Iniciar Simulación'}
+          </button>
+        </form>
 
-      {error && <div style={{ background: '#ffebee', color: '#c62828', padding: '12px', borderRadius: '6px', marginBottom: '20px' }}>{error}</div>}
+        {error && (
+          <div style={{ background: '#450a0a', color: '#fca5a5', padding: '15px', borderRadius: '8px', marginBottom: '25px', border: '1px solid #991b1b' }}>
+            {error}
+          </div>
+        )}
 
-      {datosActuales && (
-        <div style={{ background: '#fff', border: '1px solid #e0e0e0', padding: '25px', borderRadius: '10px', marginBottom: '30px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
-          <h2 style={{ marginTop: 0 }}>{datosActuales.titulo}</h2>
-          
-          <h3>📖 Resumen Conceptual</h3>
-          <p style={{ lineHeight: '1.6' }}>{datosActuales.resumen_conceptual}</p>
+        {/* Contenido principal generado */}
+        {datosActuales && (
+          <div style={{ background: '#130822', border: '1px solid #7e22ce', padding: '30px', borderRadius: '12px', marginBottom: '40px', boxShadow: '0 0 25px rgba(126, 34, 206, 0.15)' }}>
+            
+            <h2 style={{ color: '#e879f9', marginTop: 0, fontSize: '1.8rem' }}>{datosActuales.titulo}</h2>
+            
+            <h3 style={{ color: '#a855f7', borderBottom: '1px solid #2e1065', paddingBottom: '5px' }}>📖 Resumen Conceptual</h3>
+            <p style={{ lineHeight: '1.7', color: '#cbd5e1' }}>{datosActuales.resumen_conceptual}</p>
 
-          <h3>📚 Lecturas Clave</h3>
-          <ul style={{ paddingLeft: '20px' }}>
-            {datosActuales.libros_recomendados?.map((libro, index) => (
-              <li key={index} style={{ marginBottom: '8px' }}>
-                <strong>{libro.titulo}</strong> — <em>{libro.autor}</em> <br />
-                <small style={{ color: '#555' }}>{libro.por_que_leerlo}</small>
-              </li>
-            ))}
-          </ul>
+            <h3 style={{ color: '#a855f7', borderBottom: '1px solid #2e1065', paddingBottom: '5px', marginTop: '25px' }}>📚 Lecturas Clave</h3>
+            <ul style={{ paddingLeft: '20px', color: '#cbd5e1' }}>
+              {datosActuales.libros_recomendados?.map((libro, index) => (
+                <li key={index} style={{ marginBottom: '10px' }}>
+                  <strong style={{ color: '#f472b6' }}>{libro.titulo}</strong> — <em style={{ color: '#94a3b8' }}>{libro.autor}</em> <br />
+                  <small style={{ color: '#64748b' }}>{libro.por_que_leerlo}</small>
+                </li>
+              ))}
+            </ul>
 
-          {/* Bloque de Simulación de Decisiones */}
-          <div style={{ marginTop: '30px', padding: '20px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #cbd5e1' }}>
-            <h3 style={{ marginTop: 0, color: '#1e293b' }}>🕹️ Consola de Simulación de Incidente</h3>
-            <p><strong>Tu Rol Asignado:</strong> {datosActuales.minijuego.rol_usuario}</p>
-            <p><strong>Escenario:</strong> {datosActuales.minijuego.contexto_escenario}</p>
-            <p style={{ fontWeight: 'bold', color: '#0f172a', background: '#e2e8f0', padding: '10px', borderRadius: '4px' }}>
-              🎯 Reto: {datosActuales.minijuego.reto}
-            </p>
+            {/* Consola del Minijuego / Simulación */}
+            <div style={{ marginTop: '35px', padding: '25px', background: '#090314', borderRadius: '10px', border: '1px solid #4c1d95' }}>
+              <h3 style={{ marginTop: 0, color: '#4ade80', textShadow: '0 0 10px rgba(74, 222, 128, 0.3)' }}>
+                💻 Consola de Simulación de Incidente
+              </h3>
+              
+              <div style={{ marginBottom: '15px', background: '#170b2c', padding: '12px', borderRadius: '6px', borderLeft: '4px solid #a855f7' }}>
+                <p style={{ margin: '0 0 5px 0' }}><strong style={{ color: '#c084fc' }}>Rol Asignado:</strong> {datosActuales.minijuego.rol_usuario}</p>
+                <p style={{ margin: 0 }}><strong style={{ color: '#c084fc' }}>Escenario:</strong> {datosActuales.minijuego.contexto_escenario}</p>
+              </div>
 
-            <p style={{ marginBottom: '8px', fontWeight: '600' }}>Selecciona tu curso de acción:</p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {datosActuales.minijuego.opciones?.map((opcion, idx) => {
-                let estiloBoton: React.CSSProperties = {
-                  padding: '12px 15px',
-                  textAlign: 'left',
-                  background: '#fff',
-                  border: '1px solid #94a3b8',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontSize: '15px'
-                };
+              <p style={{ fontWeight: 'bold', color: '#4ade80', background: '#064e3b', padding: '12px', borderRadius: '6px', border: '1px solid #047857' }}>
+                🎯 RETO TÉCNICO: {datosActuales.minijuego.reto}
+              </p>
 
-                if (opcionSeleccionada === opcion) {
-                  estiloBoton.background = opcion === datosActuales.minijuego.respuesta_correcta ? '#dcfce7' : '#fee2e2';
-                  estiloBoton.border = opcion === datosActuales.minijuego.respuesta_correcta ? '1px solid #16a34a' : '1px solid #dc2626';
-                }
+              <p style={{ marginBottom: '10px', color: '#cbd5e1' }}>Selecciona tu línea de acción:</p>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {datosActuales.minijuego.opciones?.map((opcion, idx) => {
+                  let estiloBoton: React.CSSProperties = {
+                    padding: '14px 18px',
+                    textAlign: 'left',
+                    background: '#12071f',
+                    border: '1px solid #7e22ce',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    color: '#f8fafc',
+                    fontFamily: 'monospace',
+                    transition: 'all 0.2s'
+                  };
 
-                return (
-                  <button key={idx} onClick={() => tomarDecision(opcion)} style={estiloBoton}>
-                    {opcion}
-                  </button>
-                );
-              })}
+                  if (opcionSeleccionada === opcion) {
+                    const esAcierto = opcion === datosActuales.minijuego.respuesta_correcta;
+                    estiloBoton.background = esAcierto ? '#064e3b' : '#7f1d1d';
+                    estiloBoton.border = esAcierto ? '1px solid #4ade80' : '1px solid #f87171';
+                    estiloBoton.color = '#fff';
+                  }
+
+                  return (
+                    <button key={idx} onClick={() => tomarDecision(opcion)} style={estiloBoton}>
+                      {opcion}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {resultadoSimulacion !== null && (
+                <div style={{
+                  marginTop: '20px',
+                  padding: '20px',
+                  background: resultadoSimulacion ? '#022c22' : '#450a0a',
+                  borderRadius: '8px',
+                  border: resultadoSimulacion ? '1px solid #10b981' : '1px solid #ef4444',
+                  boxShadow: resultadoSimulacion ? '0 0 15px rgba(16, 185, 129, 0.2)' : '0 0 15px rgba(239, 68, 68, 0.2)'
+                }}>
+                  <h4 style={{ margin: '0 0 8px 0', color: resultadoSimulacion ? '#4ade80' : '#f87171', fontSize: '1.1rem' }}>
+                    {resultadoSimulacion ? '⚡ [ACCIÓN EXITOSA: SISTEMA ESTABILIZADO]' : '💥 [FALLO CRÍTICO: BRECHA DETECTADA]'}
+                  </h4>
+                  <p style={{ margin: '5px 0', color: '#e2e8f0' }}><strong>Impacto:</strong> {datosActuales.minijuego.consecuencia_exito}</p>
+                  <p style={{ margin: '10px 0 0 0', color: '#94a3b8' }}><strong>Fundamento Técnico:</strong> {datosActuales.minijuego.explicacion_teorica}</p>
+                </div>
+              )}
             </div>
 
-            {resultadoSimulacion !== null && (
-              <div style={{ marginTop: '20px', padding: '15px', background: resultadoSimulacion ? '#f0fdf4' : '#fef2f2', borderRadius: '6px', border: resultadoSimulacion ? '1px solid #bbf7d0' : '1px solid #fecaca' }}>
-                <h4 style={{ margin: '0 0 5px 0', color: resultadoSimulacion ? '#166534' : '#991b1b' }}>
-                  {resultadoSimulacion ? '⚡ ¡Acción Exitosa!' : '⚠️ ¡Fallo en la Estrategia!'}
-                </h4>
-                <p style={{ margin: '5px 0' }}><strong>Impacto del resultado:</strong> {datosActuales.minijuego.consecuencia_exito}</p>
-                <p style={{ margin: '8px 0 0 0' }}><strong>Fundamento Técnico:</strong> <small>{datosActuales.minijuego.explicacion_teorica}</small></p>
-              </div>
-            )}
           </div>
-        </div>
-      )}
+        )}
 
-      {historial.length > 0 && (
-        <div style={{ marginTop: '40px' }}>
-          <h3>📂 Historial de Simulaciones</h3>
-          <ul style={{ paddingLeft: '20px' }}>
-            {historial.map((item, idx) => (
-              <li key={idx} style={{ cursor: 'pointer', color: '#0070f3', marginBottom: '8px' }} onClick={() => setDatosActuales(item)}>
-                {item.titulo}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+        {/* Historial */}
+        {historial.length > 0 && (
+          <div style={{ background: '#12071f', border: '1px solid #4c1d95', padding: '20px', borderRadius: '10px' }}>
+            <h3 style={{ color: '#c084fc', marginTop: 0 }}>📂 Historial de Simulaciones</h3>
+            <ul style={{ paddingLeft: '20px', margin: 0 }}>
+              {historial.map((item, idx) => (
+                <li key={idx} style={{ cursor: 'pointer', color: '#38bdf8', marginBottom: '8px' }} onClick={() => setDatosActuales(item)}>
+                  {item.titulo}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+      </div>
     </div>
   );
 }
