@@ -19,131 +19,177 @@ export default async function handler(req, res) {
 
   if (method === 'POST') {
     try {
-      const { tema } = req.body;
-      if (!tema) {
-        return res.status(400).json({ error: 'Falta el parámetro "tema"' });
-      }
-
+      const { tema, accion_usuario, estado_actual, historial, simulacion } = req.body;
+      
       const apiKey = process.env.GROQ_API_KEY; 
       
       if (!apiKey) {
         return res.status(500).json({ error: 'Falta configurar la llave GROQ_API_KEY en las variables de entorno de Vercel.' });
       }
 
-      const promptInicial = `Genera una experiencia de aprendizaje interactiva basada en el tema: "${tema}".
+      let promptSistema = "";
+      let promptUsuario = "";
 
-OBJETIVO PRINCIPAL:
-No debes crear un cuestionario, examen, lista de preguntas ni un minijuego basado en seleccionar respuestas correctas.
-Debes crear una SIMULACIÓN PRÁCTICA E INTERACTIVA en la que el usuario asuma un rol dentro de un escenario relacionado directamente con "${tema}".
-La experiencia debe sentirse como un videojuego/simulador educativo (con contexto, estado inicial, personajes, recursos, etapas y acciones que modifican el estado).
+      if (!accion_usuario) {
+        // Prompt 1: Creador del mundo de la simulación
+        promptSistema = "Eres el DISEÑADOR de una simulación educativa interactiva. Tu trabajo NO es crear un cuestionario, examen ni minijuego basado en preguntas, sino diseñar el MUNDO de una simulación práctica en la que el usuario pueda aprender haciendo. Devuelve ÚNICAMENTE JSON válido sin markdown, sin bloques de código y sin texto extra.";
+        
+        promptUsuario = `El usuario quiere aprender mediante la práctica el siguiente tema:
+"${tema || 'Ciberseguridad'}"
 
-Devuelve ÚNICAMENTE un objeto JSON válido (sin markdown, sin bloques de código, sin texto extra) con esta estructura exacta:
+Diseña el mundo completo utilizando exactamente la siguiente estructura JSON:
 {
-  "titulo": "Título atractivo de la experiencia",
-  "resumen_conceptual": "Explicación clara y profunda de los conceptos fundamentales que el usuario aprenderá.",
-  "objetivos_aprendizaje": [
-    "Objetivo práctico 1",
-    "Objetivo práctico 2",
-    "Objetivo práctico 3",
-    "Objetivo práctico 4"
-  ],
+  "titulo": "",
+  "tema": "",
+  "resumen_conceptual": "",
+  "objetivos_aprendizaje": [""],
   "nivel": "principiante",
-  "duracion_estimada": "10-15 minutos",
-  "libros_recomendados": [
+  "rol_usuario": "",
+  "tipo_simulacion": "",
+  "descripcion_mundo": "",
+  "objetivo_final": "",
+  "reglas_mundo": [""],
+  "variables": [
     {
-      "titulo": "Título",
-      "autor": "Autor",
-      "por_que_leerlo": "Motivo relacionado directamente con el aprendizaje."
+      "id": "",
+      "nombre": "",
+      "tipo": "number|string|boolean",
+      "valor_inicial": "",
+      "descripcion": ""
     }
   ],
-  "minijuego": {
-    "tipo": "simulacion_practica",
-    "rol_usuario": "Rol que asume el usuario dentro de la experiencia.",
-    "introduccion": "Narración inicial que coloca al usuario dentro del escenario.",
-    "objetivo_final": "Qué debe conseguir el usuario para completar la simulación.",
-    "estado_inicial": {
-      "descripcion": "Estado inicial del escenario.",
-      "recursos": ["Recurso 1"],
-      "variables": [
-        {
-          "nombre": "Variable",
-          "valor_inicial": "Valor",
-          "descripcion": "Qué representa."
-        }
-      ]
-    },
-    "personajes": [
-      {
-        "nombre": "Nombre",
-        "rol": "Rol",
-        "descripcion": "Descripción",
-        "comportamiento": "Comportamiento"
-      }
-    ],
-    "conceptos_clave": [
-      {
-        "concepto": "Concepto",
-        "explicacion": "Explicación",
-        "momento_para_ensenarlo": "Momento"
-      }
-    ],
-    "etapas": [
-      {
-        "id": 1,
-        "titulo": "Nombre de la etapa",
-        "contexto": "Qué está ocurriendo.",
-        "objetivo": "Objetivo de la etapa.",
-        "estado": {
-          "descripcion": "Estado actual.",
-          "variables": [{"nombre": "Var", "valor": "Val"}]
-        },
-        "acciones_sugeridas": [
-          {
-            "id": "accion_1",
-            "texto": "Acción sugerida 1.",
-            "tipo": "decision",
-            "consecuencia_si_se_ejecuta": "Consecuencia.",
-            "concepto_ensenado": "Concepto"
-          },
-          {
-            "id": "accion_2",
-            "texto": "Acción sugerida 2.",
-            "tipo": "decision",
-            "consecuencia_si_se_ejecuta": "Consecuencia.",
-            "concepto_ensenado": "Concepto"
-          }
-        ],
-        "acciones_libres": true,
-        "respuesta_a_accion": {
-          "exito": "Qué ocurre si acierta.",
-          "error": "Qué ocurre si falla.",
-          "explicacion": "Explicación teórica."
-        },
-        "evento_siguiente": "Siguiente cambio."
-      }
-    ],
-    "evento_final": {
-      "descripcion": "Situación final.",
-      "condicion_exito": "Condición de éxito.",
-      "consecuencia": "Consecuencia final."
-    },
-    "evaluacion_final": {
-      "tipo": "evaluacion_practica",
-      "criterios": ["Criterio 1"],
-      "conceptos_dominados": ["Concepto 1"],
-      "errores_posibles": [
-        {
-          "error": "Error",
-          "por_que_ocurre": "Motivo",
-          "como_mejorarlo": "Mejora"
-        }
-      ]
+  "elementos": [
+    {
+      "id": "",
+      "nombre": "",
+      "tipo": "",
+      "descripcion": "",
+      "estado_inicial": ""
     }
+  ],
+  "personajes": [
+    {
+      "id": "",
+      "nombre": "",
+      "rol": "",
+      "personalidad": "",
+      "comportamiento": ""
+    }
+  ],
+  "conceptos": [
+    {
+      "id": "",
+      "nombre": "",
+      "explicacion": "",
+      "momento_aprendizaje": ""
+    }
+  ],
+  "progresion": [
+    {
+      "nivel": 1,
+      "titulo": "",
+      "descripcion": "",
+      "objetivo": "",
+      "conceptos": []
+    }
+  ],
+  "estado_inicial": {
+    "narracion": "",
+    "situacion": "",
+    "objetivo_inmediato": "",
+    "acciones_posibles": [
+      {
+        "id": "",
+        "nombre": "",
+        "descripcion": "",
+        "tipo": ""
+      }
+    ]
+  },
+  "criterios_finalizacion": [""],
+  "resumen_final": {
+    "conceptos": [],
+    "habilidades": []
   }
 }`;
+      } else {
+        // Prompt 2: Director del mundo (procesa la acción del usuario)
+        promptSistema = "Eres el MOTOR DE UNA SIMULACIÓN EDUCATIVA INTERACTIVA. Actúa como el DIRECTOR DEL MUNDO. No eres un profesor que hace preguntas ni un examinador. Tu trabajo es observar la acción del usuario, actualizar el mundo, mostrar consecuencias reales y continuar la simulación. Devuelve ÚNICAMENTE JSON válido sin markdown, sin bloques de código y sin texto extra.";
+        
+        promptUsuario = `CONFIGURACIÓN DEL MUNDO:
+${JSON.stringify(simulacion || {})}
 
-      // --- AGENTE 1: Creador (gpt-oss-120b) ---
-      const responseCreador = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+ESTADO ACTUAL:
+${JSON.stringify(estado_actual || {})}
+
+HISTORIAL DE LA SIMULACIÓN:
+${JSON.stringify(historial || [])}
+
+ACCIÓN DEL USUARIO:
+${accion_usuario}
+
+Devuelve el resultado actualizado utilizando exactamente esta estructura JSON:
+{
+  "resultado": {
+    "narracion": "",
+    "evento": "",
+    "estado_situacion": ""
+  },
+  "cambios_estado": [
+    {
+      "variable": "",
+      "valor_anterior": "",
+      "valor_nuevo": "",
+      "motivo": ""
+    }
+  ],
+  "cambios_elementos": [
+    {
+      "elemento_id": "",
+      "cambio": ""
+    }
+  ],
+  "reacciones_personajes": [
+    {
+      "personaje_id": "",
+      "reaccion": ""
+    }
+  ],
+  "ensenanza": {
+    "mostrar": true,
+    "concepto_id": "",
+    "titulo": "",
+    "explicacion": ""
+  },
+  "siguiente_situacion": {
+    "descripcion": "",
+    "objetivo": "",
+    "acciones_sugeridas": [
+      {
+        "id": "",
+        "nombre": "",
+        "descripcion": "",
+        "tipo": ""
+      }
+    ],
+    "permite_entrada_libre": true
+  },
+  "progreso": {
+    "nivel_actual": 1,
+    "avance": 0,
+    "objetivo_completado": false,
+    "simulacion_terminada": false
+  },
+  "evaluacion": {
+    "habilidad_demostrada": "",
+    "errores_cometidos": [],
+    "conceptos_aplicados": []
+  }
+}`;
+      }
+
+      // --- LLAMADA A GROQ (Agente Creador o Director) ---
+      const responseGroq = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -152,46 +198,28 @@ Devuelve ÚNICAMENTE un objeto JSON válido (sin markdown, sin bloques de códig
         body: JSON.stringify({
           model: "openai/gpt-oss-120b",
           messages: [
-            { role: "system", content: "Eres un diseñador experto de simulaciones interactivas por etapas. Cero cuestionarios. Responde únicamente en JSON válido." },
-            { role: "user", content: promptInicial }
+            { role: "system", content: promptSistema },
+            { role: "user", content: promptUsuario }
           ],
           response_format: { type: "json_object" },
           temperature: 0.7
         })
       });
 
-      if (!responseCreador.ok) {
-        const errorData = await responseCreador.text();
-        throw new Error(`Error en el Agente Creador: ${errorData}`);
+      if (!responseGroq.ok) {
+        const errorData = await responseGroq.text();
+        throw new Error(`Error en el motor de simulación de Groq: ${errorData}`);
       }
 
-      const dataCreador = await responseCreador.json();
-      const contenidoCreador = dataCreador.choices[0].message.content.trim();
-
-      // --- AGENTE 2: Validador (qwen/qwen3.8-27b) ---
-      const responseValidador = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          model: "qwen/qwen3.8-27b",
-          messages: [
-            { role: "system", content: "Validador estricto de estructuras de simulación. Asegúrate de que el JSON sea impecable y devuélvelo limpio." },
-            { role: "user", content: `Revisa y valida este JSON:\n${contenidoCreador}` }
-          ],
-          response_format: { type: "json_object" },
-          temperature: 0.3
-        })
-      });
-
-      const dataFinal = responseValidador.ok ? await responseValidador.json() : dataCreador;
-      let textoRespuesta = dataFinal.choices[0].message.content.trim();
+      const dataGroq = await responseGroq.json();
+      let textoRespuesta = dataGroq.choices[0].message.content.trim();
       textoRespuesta = textoRespuesta.replace(/```json/g, '').replace(/```/g, '').trim();
       
       const datosGenerados = JSON.parse(textoRespuesta);
-      repositorioGlobal.unshift(datosGenerados);
+      
+      if (!accion_usuario) {
+        repositorioGlobal.unshift(datosGenerados);
+      }
 
       return res.status(200).json(datosGenerados);
     } catch (error) {
